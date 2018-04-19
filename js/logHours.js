@@ -5,26 +5,52 @@
 'use strict';
 
 let logHours = document.getElementById('logHours');
-let fromDate = document.getElementById('fromDate');
-let toDate = document.getElementById('toDate');
+let fromDateElement = document.getElementById('fromDate');
+let toDateElement = document.getElementById('toDate');
 
-$(function(){
-  fromDate.value = getCurrentDate();
-  toDate.value = getCurrentDate();
+$(function() {
+  let fromDate = getCurrentDate();
+  let toDate = getCurrentDate();
+  fromDateElement.value = fromDate;
+  toDateElement.value = toDate;
 });
 
 logHours.onclick = function(element) {
-  console.log("YEAHHH we're logging some hours now!");  
+  getCurrentHours(fromDateElement.value, toDateElement.value);
 };
 
-
-function getCurrentDate(){
+function getCurrentDate() {
   var fullDate = new Date();
-  //console.log(fullDate);
   var twoDigitMonth = fullDate.getMonth()+1+"";if(twoDigitMonth.length==1)  twoDigitMonth="0" +twoDigitMonth;
   var twoDigitDate = fullDate.getDate()+"";if(twoDigitDate.length==1) twoDigitDate="0" +twoDigitDate;
   var currentDate = fullDate.getFullYear() + "-" +  twoDigitMonth + "-" +  twoDigitDate;
-  //console.log(currentDate);
+
   return currentDate;
 }
+function getCurrentHours(fromDate, toDate, isProd = false) {
+  var additionalParameters = '&from=' + fromDate + '&to=' + toDate;
 
+  var prodUserId = '2814';
+  var prodEndpoint = '/api/v1/users/' + prodUserId + '/time_entries';
+  var prodAuthToken = 'bk93NGlXOVVIbWZoaDFYdHJKTE01VTVTcGVGNWlxRmRsUC8wcXpKNlBXcUd3OFh3b3BveWJqRlJyZzVOClhzRWE4Vm8xYTBSTkxjVHlQS1lEbXpCaFp4eUFMOGkvZHQ2ekFHcGRNUFBkRVZla2xOK1plemVjc04ySApFMVYzaXkzbgo=';
+  var prodUrl = 'https://api.10000ft.com' + prodEndpoint + '?auth=' + prodAuthToken + additionalParameters;
+
+  var stagingUserId = '2814';
+  var stagingEndpoint = '/api/v1/users/' + stagingUserId + '/time_entries';
+  var stagingAuthToken = 'WEwrN0Z6ZHJuMTNYU2lBMnF5ajJ4aW1icTd6OS9aM2RQNGMvWDVrRU5pSVprTHNlYVZyVHRQT1NUb1M0CkVWYk9ocFIxQmg4UGRxWVNVZTFZbm0raUl5ekNnSlZ3eStlNEVtb09OSlNOQi9zdXNHMUxxK1FBYXVCdgpnZXJIZ0tTSAo=';
+  var stagingUrl = 'https://vnext-api.10000ft.com' + stagingEndpoint + '?auth=' + stagingAuthToken + additionalParameters;
+
+  var url = (isProd) ? prodUrl : stagingUrl;
+
+  $.ajax({
+    url: url,
+    type : "GET",
+    headers: { "Content-Type": "application/json" },
+    success: function(response) {
+      console.log(response);
+    },
+    error: function(error) {
+      console.log(error);
+    }
+  });
+}
