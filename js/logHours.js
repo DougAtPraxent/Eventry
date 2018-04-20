@@ -33,6 +33,20 @@ $(function() {
     updateProjectHoursForDay(dummyUserId, dummyProjectId, timeEntryDate, dummyTimeEntryLength)
   });
 
+  $fromDateElement.change(function(e) {
+    if (!e || !e.currentTarget) return;
+
+    let newDate = e.currentTarget.value;
+    $fromDateElement.attr('value', newDate); 
+  });
+
+  $toDateElement.change(function(e) {
+    if (!e || !e.currentTarget) return;
+
+    let newDate = e.currentTarget.value;
+    $toDateElement.attr('value', newDate); 
+  });
+
   function getCurrentDate() {
     var fullDate = new Date();
     var twoDigitMonth = fullDate.getMonth()+1+"";if(twoDigitMonth.length==1)  twoDigitMonth="0" +twoDigitMonth;
@@ -64,7 +78,6 @@ $(function() {
   }
 
   function updateProjectHoursForDay(userId, projectId, date, length = 0.0) {
-    console.log(date);
     let endpoint = getTimeEntryEndpointForUser(userId);
     let apiUrl = getApiUrlForEndpoint(endpoint);
     let additionalParameters = '&user_id=' + userId +
