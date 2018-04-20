@@ -23,8 +23,19 @@ $(function() {
   $fromDateElement.attr('value', getCurrentDate());
   $toDateElement.attr('value', getCurrentDate());
   $btnLogHours.attr('disabled', true);
-  
-  loadProjectAssignments(dummyUserId);
+
+  // TEMP UNUSED. Do not delete yet.
+  // let fromDateTime = new Date($fromDateElement.attr('value')).getTime();
+  // let toDateTime = new Date($toDateElement.attr('value')).getTime();
+  // let sevenDaysAgo = getFormattedDate(new Date(fromDateTime - (24 * 86400 * 1000)));
+  // let sevenDaysFromNow = getFormattedDate(new Date(toDateTime + (24 * 86400 * 1000)));
+  // console.log(sevenDaysAgo);
+  // console.log(sevenDaysFromNow);
+  // setDateValidation(sevenDaysAgo, sevenDaysFromNow);
+
+  // TODO get guid from Cookie Yum Nom Yum
+  let guidFromCookie = null
+  loadUser(guidFromCookie);
 
   $btnLogHours.click(function() {
     getCurrentHoursForUser(dummyUserId, $fromDateElement.attr('value'), $toDateElement.attr('value'));
@@ -56,6 +67,16 @@ $(function() {
     return currentDate;
   }
 
+  function getFormattedDate(date) {
+    return date.getMonth() + '/' + date.getDate() + '/' +  date.getFullYear();
+  }
+
+  // Set date validation to prevent accidental update of old entries.
+  function setDateValidation(fromMin, toMax) {
+    $fromDateElement.attr('min', fromMin);
+    $toDateElement.attr('max', toMax);
+  }
+
   function loadProjectAssignments(userId) {
     let endpoint = getProjectAssignmentEndpointForUser(userId);
     let apiUrl = getApiUrlForEndpoint(endpoint);
@@ -65,8 +86,6 @@ $(function() {
       type : "GET",
       headers: defaultHeader,
       success: function(response) {
-        $btnLogHours.text('Log Hours');
-        $btnLogHours.attr('disabled', false);
         console.log(response);
         console.log('READY!');
       },
@@ -92,11 +111,11 @@ $(function() {
       type : "POST",
       headers: defaultHeader,
       success: function(response) {
-        showConfirmationMessage('Time Updated!');
+        showConfirmationMessage('Time Updated!', 'Logged!');
         console.log(response);
       },
       error: function(error) {
-        showConfirmationMessage('Error!');
+        showConfirmationMessage('Error!', 'Loading...');
         console.log(error);
       }
     });
@@ -121,12 +140,58 @@ $(function() {
     });
   }
 
+  function loadUser(guid) {
+    if (!guid) {
+      getUserByGuidSorting(guid);
+
+      return;
+    };
+
+    getAllUsersForGuidSort(guid);
+  }
+
+  function getAllUsersForGuidSort(guid) {
+    let endpoint = getAllUsersEndpoint();
+    let apiUrl = getApiUrlForEndpoint(endpoint);
+
+    $.ajax({
+      url: apiUrl,
+      type : "GET",
+      headers: defaultHeader,
+      success: function(response) {
+        // TODO Replace "response" with User object
+        getUserByGuidSorting(guid, response);
+        console.log(response);
+      },
+      error: function(error) {
+        console.log(error);
+      }
+    });
+  }
+
+  // TODO get userId
+  function getUserByGuidSorting(guid, users = []) {
+    // Sort and find userId. Use dummy id if no matches found.
+
+    let userId = false;
+    if (!userId) {
+      userId = dummyUserId;
+      showConfirmationMessage('USER NOT FOUND. DEMO MODE ACTIVATED.', 'Loading...');
+    }
+
+    loadProjectAssignments(userId);
+  }
+
   function getTimeEntryEndpointForUser(userId) {
     return '/api/v1/users/' + userId + '/time_entries';
   }
 
   function getProjectAssignmentEndpointForUser(userId) {
     return '/api/v1/users/' + userId + '/assignments';
+  }
+
+  function getAllUsersEndpoint() {
+    return '/api/v1/users';
   }
 
   function getApiUrlForEndpoint(endpoint) {
@@ -145,17 +210,17 @@ $(function() {
     return 'https://vnext-api.10000ft.com' + endpoint;
   }
 
-  function showConfirmationMessage(message) {
+  function showConfirmationMessage(message, btnMessage = 'Loading...') {
     let delayLength = 3000;
     let hideLength = 1000;
     let showLength = 250;
     $('#confirmation').text(message).show(showLength).delay(delayLength).hide(hideLength);
-    disableForm(delayLength);
+    disableForm(delayLength, btnMessage);
   }
 
-  function disableForm(delayLength) {
+  function disableForm(delayLength, btnMessage) {
     $btnLogHours.attr('disabled', true);
-    $btnLogHours.text('Logged!');
+    $btnLogHours.text(btnMessage);
     setTimeout(reenableForm, delayLength);
   }
 
