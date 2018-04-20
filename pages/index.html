@@ -3,6 +3,9 @@
    <head>
    <link rel="stylesheet" type="text/css" href="../css/style.css">
    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+   <script
+    type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" />
   </head>
   <body>
 
@@ -11,10 +14,9 @@
         <div id="confirmation"></div>
         <form name="" id="">
           <label>Dates:</label>
-          <fieldset>
-              <label>From:</label><input type="date" id="from-date" value=""/>
-              <label>To:</label><input type="date" id="to-date" value=""/>
-
+          <fieldset id="date-selection">
+              <label>From:</label><input type="text" id="from-date" value="" disabled/>
+              <label>To:</label><input type="text" id="to-date" value="" disabled/>
             </fieldset>
           </fieldset>
         </form>

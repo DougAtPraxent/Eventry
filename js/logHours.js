@@ -20,61 +20,43 @@ $(function() {
   let $fromDateElement = $('#from-date');
   let $toDateElement = $('#to-date');
 
-  $fromDateElement.attr('value', getCurrentDate());
-  $toDateElement.attr('value', getCurrentDate());
-  $btnLogHours.attr('disabled', true);
+  $fromDateElement.datepicker({
+    format: 'mm/dd/yyyy',
+    changeYear: true,
+    minDate: '-7D',
+    maxDate: '+7D',
+  });
+  $toDateElement.datepicker({
+    format: 'mm/dd/yyyy',
+    changeYear: true,
+    minDate: '-7D',
+    maxDate: '+7D',
+  });
 
-  // TEMP UNUSED. Do not delete yet.
-  // let fromDateTime = new Date($fromDateElement.attr('value')).getTime();
-  // let toDateTime = new Date($toDateElement.attr('value')).getTime();
-  // let sevenDaysAgo = getFormattedDate(new Date(fromDateTime - (24 * 86400 * 1000)));
-  // let sevenDaysFromNow = getFormattedDate(new Date(toDateTime + (24 * 86400 * 1000)));
-  // console.log(sevenDaysAgo);
-  // console.log(sevenDaysFromNow);
-  // setDateValidation(sevenDaysAgo, sevenDaysFromNow);
+  $fromDateElement.datepicker('setDate', new Date());
+  $toDateElement.datepicker('setDate', new Date());
+
+  $('#date-selection').click(function() {
+    $fromDateElement.removeAttr('disabled');
+    $toDateElement.removeAttr('disabled');
+  });
+
+  $btnLogHours.attr('disabled', true);
 
   // TODO get guid from Cookie Yum Nom Yum
   let guidFromCookie = null
   loadUser(guidFromCookie);
 
   $btnLogHours.click(function() {
-    getCurrentHoursForUser(dummyUserId, $fromDateElement.attr('value'), $toDateElement.attr('value'));
+    let timeEntryDate = getFormattedDate($fromDateElement.datepicker( "getDate" ));
+    getCurrentHoursForUser(dummyUserId, timeEntryDate, $toDateElement.attr('value'));
 
-    let timeEntryDate = $fromDateElement.attr('value');
+    console.log(timeEntryDate);
     updateProjectHoursForDay(dummyUserId, dummyProjectId, timeEntryDate, dummyTimeEntryLength)
   });
 
-  $fromDateElement.change(function(e) {
-    if (!e || !e.currentTarget) return;
-
-    let newDate = e.currentTarget.value;
-    $fromDateElement.attr('value', newDate); 
-  });
-
-  $toDateElement.change(function(e) {
-    if (!e || !e.currentTarget) return;
-
-    let newDate = e.currentTarget.value;
-    $toDateElement.attr('value', newDate); 
-  });
-
-  function getCurrentDate() {
-    var fullDate = new Date();
-    var twoDigitMonth = fullDate.getMonth()+1+"";if(twoDigitMonth.length==1)  twoDigitMonth="0" +twoDigitMonth;
-    var twoDigitDate = fullDate.getDate()+"";if(twoDigitDate.length==1) twoDigitDate="0" +twoDigitDate;
-    var currentDate = fullDate.getFullYear() + "-" +  twoDigitMonth + "-" +  twoDigitDate;
-
-    return currentDate;
-  }
-
   function getFormattedDate(date) {
-    return date.getMonth() + '/' + date.getDate() + '/' +  date.getFullYear();
-  }
-
-  // Set date validation to prevent accidental update of old entries.
-  function setDateValidation(fromMin, toMax) {
-    $fromDateElement.attr('min', fromMin);
-    $toDateElement.attr('max', toMax);
+    return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
   }
 
   function loadProjectAssignments(userId) {
@@ -97,6 +79,7 @@ $(function() {
   }
 
   function updateProjectHoursForDay(userId, projectId, date, length = 0.0) {
+    console.log(date);
     let endpoint = getTimeEntryEndpointForUser(userId);
     let apiUrl = getApiUrlForEndpoint(endpoint);
     let additionalParameters = '&user_id=' + userId +
