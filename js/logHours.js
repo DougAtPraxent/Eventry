@@ -146,7 +146,22 @@ $(function() {
   }
 
   function showConfirmationMessage(message) {
-    $('#confirmation').text(message).show(0).delay(5000).hide(0);
+    let delayLength = 3000;
+    let hideLength = 1000;
+    let showLength = 250;
+    $('#confirmation').text(message).show(showLength).delay(delayLength).hide(hideLength);
+    disableForm(delayLength);
+  }
+
+  function disableForm(delayLength) {
+    $btnLogHours.attr('disabled', true);
+    $btnLogHours.text('Logged!');
+    setTimeout(reenableForm, delayLength);
+  }
+
+  function reenableForm() {
+    $btnLogHours.attr('disabled', false);
+    $btnLogHours.text('Log Hours!');
   }
 
 });

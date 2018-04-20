@@ -2,16 +2,24 @@ button {
   height: 30px;
   width: 180px;
   outline: none;
-  background:white;
-  color:black;
+  background: green;
+  border-radius: 4px;
+  color: white;
   cursor: pointer;
+}
+button[disabled] {
+  background: darkgreen;
+  cursor: not-allowed;
 }
 #main {
   width:450px;
   height:450px;
 }
 #confirmation {
-  background-color: blue;
+  background-color: darkblue;
+  border-radius: 4px;
   color: white;
+  display: none;
   font-size: 16px;
+  padding: 3px;
 }
