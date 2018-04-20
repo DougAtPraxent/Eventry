@@ -4,6 +4,7 @@ button {
   outline: none;
   background:white;
   color:black;
+  cursor: pointer;
 }
 #main {
   width:450px;

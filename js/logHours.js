@@ -8,20 +8,30 @@ $(function() {
   // Switch this to true when the app is ready!
   let isReadyForProd = false;
 
+  // Dummy Data
+  let dummyUserId = 2814;
+  let dummyProjectId = 14460
+  let dummyTimeEntryLength = 0.5;
+
   let defaultHeader = { "Content-Type": "application/json" };
-  let $btnLogHours = $('#logHours');
-  let $fromDateElement = $('#fromDate');
-  let $toDateElement = $('#toDate');
+  let defaultNote = 'Added by Eventry';
+
+  let $btnLogHours = $('#log-hours');
+  let $fromDateElement = $('#from-date');
+  let $toDateElement = $('#to-date');
+
   $fromDateElement.attr('value', getCurrentDate());
   $toDateElement.attr('value', getCurrentDate());
   $btnLogHours.attr('disabled', true);
+  
+  loadProjectAssignments(dummyUserId);
 
-  let userId = 2814;
-  loadProjectAssignments(userId);
+  $btnLogHours.click(function() {
+    getCurrentHoursForUser(dummyUserId, $fromDateElement.attr('value'), $toDateElement.attr('value'));
 
-  $btnLogHours.onclick = function(element) {
-    getCurrentHours(fromDateElement.value, toDateElement.value);
-  };
+    let timeEntryDate = $fromDateElement.attr('value');
+    updateProjectHoursForDay(dummyUserId, dummyProjectId, timeEntryDate, dummyTimeEntryLength)
+  });
 
   function getCurrentDate() {
     var fullDate = new Date();
@@ -53,50 +63,37 @@ $(function() {
     });
   }
 
-  function updateProjectHoursForDay(userId, project, day) {
+  function updateProjectHoursForDay(userId, projectId, date, length = 0.0) {
+    console.log(date);
     let endpoint = getTimeEntryEndpointForUser(userId);
     let apiUrl = getApiUrlForEndpoint(endpoint);
-
-    data = {
-      "user_id": user_id,
-      "assignable_id": 1001,
-      "date": "2012-01-21",
-      "hours": 0.5,
-      "task": 'Travel',
-      "notes": 'Drive to Seattle, WA to meet with 10Kft'
-    }
+    let additionalParameters = '&user_id=' + userId +
+      '&assignable_id=' + projectId +
+      '&date=' + date +
+      '&hours=' + length +
+      '&notes=' + defaultNote;
+    let url = apiUrl + additionalParameters
 
     $.ajax({
-      url: apiUrl,
+      url: url,
       type : "POST",
       headers: defaultHeader,
       success: function(response) {
         showConfirmationMessage('Time Updated!');
         console.log(response);
-        console.log('READY!');
       },
       error: function(error) {
         showConfirmationMessage('Error!');
         console.log(error);
       }
     });
-
-//     POST /api/v1/users/<user_id>/time_entries
-
-// {
-//   "user_id": <user_id>,
-//   "assignable_id": 1001,
-//   "date": "2012-01-21",
-//   "hours": 0.5,
-//   "task": 'Travel',
-//   "notes": 'Drive to Seattle, WA to meet with 10Kft'
-// }
   }
 
-  function getCurrentHours(fromDate, toDate) {
-    var additionalParameters = '&from=' + fromDate + '&to=' + toDate;
-
-    var url = (isReadyForProd) ? prodUrl : stagingUrl;
+  function getCurrentHoursForUser(userId, fromDate, toDate) {
+    let endpoint = getTimeEntryEndpointForUser(userId);
+    let apiUrl = getApiUrlForEndpoint(endpoint);
+    let additionalParameters = '&from=' + fromDate + '&to=' + toDate;
+    let url = apiUrl + additionalParameters;
 
     $.ajax({
       url: url,
@@ -131,8 +128,12 @@ $(function() {
     return 'https://vnext-api.10000ft.com' + endpoint + '?auth=' + stagingAuthToken;
   }
 
+  function getApiUrlForEndpointWithoutAuth(endpoint) {
+    return 'https://vnext-api.10000ft.com' + endpoint;
+  }
+
   function showConfirmationMessage(message) {
-    $('#confirmation').text(message);
+    $('#confirmation').text(message).show(0).delay(5000).hide(0);
   }
 
 });
