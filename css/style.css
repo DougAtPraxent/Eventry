@@ -6,14 +6,21 @@ button {
   border-radius: 4px;
   color: white;
   cursor: pointer;
+  margin-top: 5px;
 }
 button[disabled] {
   background: darkgreen;
   cursor: not-allowed;
 }
+h1 {
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
 #main {
-  width:450px;
-  height:450px;
+  width: 450px;
+  height: 150px;
+  padding: 5px;
+  margin-bottom: 10px;
 }
 #confirmation {
   background-color: darkblue;
