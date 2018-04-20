@@ -1,12 +1,16 @@
 button {
-        height: 30px;
-        width: 180px;
-        outline: none;
-        background:white;
-        color:black;
+  height: 30px;
+  width: 180px;
+  outline: none;
+  background:white;
+  color:black;
 }
-
-div {
+#main {
   width:450px;
   height:450px;
+}
+#confirmation {
+  background-color: blue;
+  color: white;
+  font-size: 16px;
 }

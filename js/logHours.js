@@ -5,6 +5,10 @@
 'use strict';
 
 $(function() {
+  // Switch this to true when the app is ready!
+  let isReadyForProd = false;
+
+  let defaultHeader = { "Content-Type": "application/json" };
   let $btnLogHours = $('#logHours');
   let $fromDateElement = $('#fromDate');
   let $toDateElement = $('#toDate');
@@ -27,14 +31,15 @@ $(function() {
 
     return currentDate;
   }
+
   function loadProjectAssignments(userId) {
     let endpoint = getProjectAssignmentEndpointForUser(userId);
-    let apiUrl = getApiUrlForEndpoint(endpoint, 'staging');
+    let apiUrl = getApiUrlForEndpoint(endpoint);
 
     $.ajax({
       url: apiUrl,
       type : "GET",
-      headers: { "Content-Type": "application/json" },
+      headers: defaultHeader,
       success: function(response) {
         $btnLogHours.text('Log Hours');
         $btnLogHours.attr('disabled', false);
@@ -48,15 +53,55 @@ $(function() {
     });
   }
 
-  function getCurrentHours(fromDate, toDate, isProd = false) {
+  function updateProjectHoursForDay(userId, project, day) {
+    let endpoint = getTimeEntryEndpointForUser(userId);
+    let apiUrl = getApiUrlForEndpoint(endpoint);
+
+    data = {
+      "user_id": user_id,
+      "assignable_id": 1001,
+      "date": "2012-01-21",
+      "hours": 0.5,
+      "task": 'Travel',
+      "notes": 'Drive to Seattle, WA to meet with 10Kft'
+    }
+
+    $.ajax({
+      url: apiUrl,
+      type : "POST",
+      headers: defaultHeader,
+      success: function(response) {
+        showConfirmationMessage('Time Updated!');
+        console.log(response);
+        console.log('READY!');
+      },
+      error: function(error) {
+        showConfirmationMessage('Error!');
+        console.log(error);
+      }
+    });
+
+//     POST /api/v1/users/<user_id>/time_entries
+
+// {
+//   "user_id": <user_id>,
+//   "assignable_id": 1001,
+//   "date": "2012-01-21",
+//   "hours": 0.5,
+//   "task": 'Travel',
+//   "notes": 'Drive to Seattle, WA to meet with 10Kft'
+// }
+  }
+
+  function getCurrentHours(fromDate, toDate) {
     var additionalParameters = '&from=' + fromDate + '&to=' + toDate;
 
-    var url = (isProd) ? prodUrl : stagingUrl;
+    var url = (isReadyForProd) ? prodUrl : stagingUrl;
 
     $.ajax({
       url: url,
       type : "GET",
-      headers: { "Content-Type": "application/json" },
+      headers: defaultHeader,
       success: function(response) {
         console.log(response);
       },
@@ -74,8 +119,8 @@ $(function() {
     return '/api/v1/users/' + userId + '/assignments';
   }
 
-  function getApiUrlForEndpoint(endpoint, env = 'staging') {
-    if (env == 'prod') {
+  function getApiUrlForEndpoint(endpoint) {
+    if (isReadyForProd) {
       var prodAuthToken = 'bk93NGlXOVVIbWZoaDFYdHJKTE01VTVTcGVGNWlxRmRsUC8wcXpKNlBXcUd3OFh3b3BveWJqRlJyZzVOClhzRWE4Vm8xYTBSTkxjVHlQS1lEbXpCaFp4eUFMOGkvZHQ2ekFHcGRNUFBkRVZla2xOK1plemVjc04ySApFMVYzaXkzbgo=';
 
       return 'https://api.10000ft.com' + endpoint + '?auth=' + prodAuthToken;
@@ -85,4 +130,9 @@ $(function() {
 
     return 'https://vnext-api.10000ft.com' + endpoint + '?auth=' + stagingAuthToken;
   }
+
+  function showConfirmationMessage(message) {
+    $('#confirmation').text(message);
+  }
+
 });
